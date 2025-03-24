@@ -1,0 +1,188 @@
+#include <iostream>
+#include <iomanip>
+#include <map>
+#include <vector>
+#include <string>
+using namespace std;
+
+class Event {
+public:
+    string title;
+    string details;
+    string dateTime;
+
+    Event(string t, string d, string dt) : title(t), details(d), dateTime(dt) {}
+};
+
+class Calendar {
+private:
+    int year;
+    map<string, vector<Event>> events;
+
+    static bool isLeapYear(int year) {
+        return (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0);
+    }
+
+    static int getDaysInMonth(int month, int year) {
+        int daysInMonth[] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+        if (month == 1 && isLeapYear(year)) {
+            return 29;
+        }
+        return daysInMonth[month];
+    }
+
+    static int getFirstDayOfYear(int year) {
+        int day = (year - 1) * 365 + (year - 1) / 4 - (year - 1) / 100 + (year - 1) / 400;
+        return (day + 1) % 7;
+    }
+
+public:
+    Calendar(int y) : year(y) {}
+
+    void addEvent(string title, string details, string dateTime) {
+        events[dateTime].push_back(Event(title, details, dateTime));
+    }
+
+    void viewEvents(string dateTime) {
+        if (events.find(dateTime) == events.end()) {
+            cout << "No events on " << dateTime << "\n";
+            return;
+        }
+        cout << "Events on " << dateTime << ":\n";
+        for (size_t i = 0; i < events[dateTime].size(); i++) {
+            cout << i + 1 << ". " << events[dateTime][i].title << "\n";
+        }
+    }
+
+    void viewEventDetails(string dateTime, int index) {
+        if (events.find(dateTime) != events.end() && index >= 0 && index < events[dateTime].size()) {
+            cout << "Title: " << events[dateTime][index].title << "\nDetails: " << events[dateTime][index].details << "\n";
+        }
+        else {
+            cout << "Event not found.\n";
+        }
+    }
+
+    void editEvent(string dateTime, int index, string newTitle, string newDetails) {
+        if (events.find(dateTime) != events.end() && index >= 0 && index < events[dateTime].size()) {
+            events[dateTime][index].title = newTitle;
+            events[dateTime][index].details = newDetails;
+        }
+        else {
+            cout << "Event not found.\n";
+        }
+    }
+
+    void deleteEvent(string dateTime, int index) {
+        if (events.find(dateTime) != events.end() && index >= 0 && index < events[dateTime].size()) {
+            events[dateTime].erase(events[dateTime].begin() + index);
+            if (events[dateTime].empty()) {
+                events.erase(dateTime);
+            }
+        }
+        else {
+            cout << "События нет.\n";
+        }
+    }
+
+    void printYearCalendar() const {
+        int startDay = getFirstDayOfYear(year);
+        string months[] = { "Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь" };
+
+        for (int i = 0; i < 12; i++) {
+            cout << "\n  " << months[i] << " " << year << "\n";
+            cout << "Суббота | Понедельник | Вторник | Среда | Четверг | Пятница | Воскресенье\n";
+
+            int days = getDaysInMonth(i, year);
+            int dayOfWeek = startDay;
+
+            for (int j = 0; j < dayOfWeek; j++) {
+                cout << "    ";
+            }
+
+            for (int d = 1; d <= days; d++) {
+                cout << setw(3) << d << " ";
+                if (++dayOfWeek > 6) {
+                    dayOfWeek = 0;
+                    cout << endl;
+                }
+            }
+
+            cout << "\n";
+            startDay = dayOfWeek;
+        }
+    }
+};
+
+int main() {
+    setlocale(0, 0);
+    int year;
+    cout << "Введите год: ";
+    cin >> year;
+    Calendar cal(year);
+
+    int choice;
+    do {
+        cout << "\n1. Посмотреть год в календаре \n2. Добавить событие\n3. Просмотр событий на дату\n4. Просмотр сведений о событии\n5. Редактировать событие\n6. Удалить событие\n7. Выход\nВыберите вариант:";
+        cin >> choice;
+
+        if (choice == 1) {
+            cal.printYearCalendar();
+        }
+        else if (choice == 2) {
+            string title, details, dateTime;
+            cout << "Введите дату события (ГГГГ-ММ-ДД ЧЧ:ММ):";
+            cin.ignore();
+            getline(cin, dateTime);
+            cout << "Введите название события:";
+            getline(cin, title);
+            cout << "Введите данные о событии:";
+            getline(cin, details);
+            cal.addEvent(title, details, dateTime);
+        }
+        else if (choice == 3) {
+            string dateTime;
+            cout << "Введите дату (ГГГГ-ММ-ДД ЧЧ:ММ):";
+            cin.ignore();
+            getline(cin, dateTime);
+            cal.viewEvents(dateTime);
+        }
+        else if (choice == 4) {
+            string dateTime;
+            int index;
+            cout << "Введите дату (ГГГГ-ММ-ДД ЧЧ:ММ):";
+            cin.ignore();
+            getline(cin, dateTime);
+            cout << "Введите событие: ";
+            cin >> index;
+            cal.viewEventDetails(dateTime, index - 1);
+        }
+        else if (choice == 5) {
+            string dateTime, newTitle, newDetails;
+            int index;
+            cout << "Введите дату (ГГГГ-ММ-ДД):";
+            cin.ignore();
+            getline(cin, dateTime);
+            cout << "Enter event index: ";
+            cin >> index;
+            cin.ignore();
+            cout << "Enter new title: ";
+            getline(cin, newTitle);
+            cout << "Enter new details: ";
+            getline(cin, newDetails);
+            cal.editEvent(dateTime, index - 1, newTitle, newDetails);
+        }
+        else if (choice == 6) {
+            string dateTime;
+            int index;
+            cout << "Введите дату (ГГГГ-ММ-ДД):";
+            cin.ignore();
+            getline(cin, dateTime);
+            cout << "Enter event index: ";
+            cin >> index;
+            cal.deleteEvent(dateTime, index - 1);
+        }
+    } while (choice != 7);
+
+    return 0;
+}
