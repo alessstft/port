@@ -45,10 +45,10 @@ public:
 
     void viewEvents(string dateTime) {
         if (events.find(dateTime) == events.end()) {
-            cout << "No events on " << dateTime << "\n";
+            cout << "Нет событий " << dateTime << ".\n";
             return;
         }
-        cout << "Events on " << dateTime << ":\n";
+        cout << "Ваше событие " << dateTime << ":\n";
         for (size_t i = 0; i < events[dateTime].size(); i++) {
             cout << i + 1 << ". " << events[dateTime][i].title << "\n";
         }
@@ -56,10 +56,10 @@ public:
 
     void viewEventDetails(string dateTime, int index) {
         if (events.find(dateTime) != events.end() && index >= 0 && index < events[dateTime].size()) {
-            cout << "Title: " << events[dateTime][index].title << "\nDetails: " << events[dateTime][index].details << "\n";
+            cout << "Название: " << events[dateTime][index].title << "\nОписание: " << events[dateTime][index].details << "\n";
         }
         else {
-            cout << "Event not found.\n";
+            cout << "Ничего не нашлось.\n";
         }
     }
 
@@ -69,7 +69,7 @@ public:
             events[dateTime][index].details = newDetails;
         }
         else {
-            cout << "Event not found.\n";
+            cout << "Увы, ничего нет.\n";
         }
     }
 
@@ -115,7 +115,7 @@ public:
 };
 
 int main() {
-    setlocale(0, 0);
+    setlocale(LC_ALL, "ru");
     int year;
     cout << "Введите год: ";
     cin >> year;
@@ -166,9 +166,9 @@ int main() {
             cout << "Enter event index: ";
             cin >> index;
             cin.ignore();
-            cout << "Enter new title: ";
+            cout << "Введите новое название: ";
             getline(cin, newTitle);
-            cout << "Enter new details: ";
+            cout << "Добавьте новое описание: ";
             getline(cin, newDetails);
             cal.editEvent(dateTime, index - 1, newTitle, newDetails);
         }
@@ -185,4 +185,5 @@ int main() {
     } while (choice != 7);
 
     return 0;
-}
+
+    }
