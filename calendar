@@ -45,7 +45,7 @@ public:
 
     void viewEvents(string dateTime) {
         if (events.find(dateTime) == events.end()) {
-            cout << "Нет событий " << dateTime << ".\n";
+            cout << "Ничего не нашлось " << dateTime << ".\n";
             return;
         }
         cout << "Ваше событие " << dateTime << ":\n";
@@ -59,7 +59,7 @@ public:
             cout << "Название: " << events[dateTime][index].title << "\nОписание: " << events[dateTime][index].details << "\n";
         }
         else {
-            cout << "Ничего не нашлось.\n";
+            cout << "Нет такого события.\n";
         }
     }
 
@@ -81,17 +81,17 @@ public:
             }
         }
         else {
-            cout << "События нет.\n";
+            cout << "Событий нет.\n";
         }
     }
 
     void printYearCalendar() const {
         int startDay = getFirstDayOfYear(year);
-        string months[] = { "Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь" };
+        string months[] = { "1 Январь", "2 Февраль", "3 Март", "4 Апрель", "5 Май", "6 Июнь", "7 Июль", "8 Август", "9 Сентябрь", "10 Октябрь", "11 Ноябрь", "12 Декабрь" };
 
         for (int i = 0; i < 12; i++) {
             cout << "\n  " << months[i] << " " << year << "\n";
-            cout << "Суббота | Понедельник | Вторник | Среда | Четверг | Пятница | Воскресенье\n";
+            cout << " Вс  Пн   Вт  Ср  Чт  Пт  Сб \n";
 
             int days = getDaysInMonth(i, year);
             int dayOfWeek = startDay;
@@ -131,18 +131,18 @@ int main() {
         }
         else if (choice == 2) {
             string title, details, dateTime;
-            cout << "Введите дату события (ГГГГ-ММ-ДД ЧЧ:ММ):";
+            cout << "Введите дату события (ГГГГ-ММ-ДД *ЧЧ:ММ*): ";
             cin.ignore();
             getline(cin, dateTime);
-            cout << "Введите название события:";
+            cout << "Введите название события: ";
             getline(cin, title);
-            cout << "Введите данные о событии:";
+            cout << "Введите данные о событии: ";
             getline(cin, details);
             cal.addEvent(title, details, dateTime);
         }
         else if (choice == 3) {
             string dateTime;
-            cout << "Введите дату (ГГГГ-ММ-ДД ЧЧ:ММ):";
+            cout << "Введите дату (ГГГГ-ММ-ДД *ЧЧ:ММ*): ";
             cin.ignore();
             getline(cin, dateTime);
             cal.viewEvents(dateTime);
@@ -150,20 +150,22 @@ int main() {
         else if (choice == 4) {
             string dateTime;
             int index;
-            cout << "Введите дату (ГГГГ-ММ-ДД ЧЧ:ММ):";
+            cout << "Введите дату (ГГГГ-ММ-ДД *ЧЧ:ММ*): ";
             cin.ignore();
             getline(cin, dateTime);
-            cout << "Введите событие: ";
+            cal.viewEvents(dateTime); 
+            cout << "Введите номер события: ";
             cin >> index;
             cal.viewEventDetails(dateTime, index - 1);
         }
         else if (choice == 5) {
             string dateTime, newTitle, newDetails;
             int index;
-            cout << "Введите дату (ГГГГ-ММ-ДД):";
+            cout << "Введите дату (ГГГГ-ММ-ДД *ЧЧ:ММ*): ";
             cin.ignore();
             getline(cin, dateTime);
-            cout << "Enter event index: ";
+            cal.viewEvents(dateTime);
+            cout << "Введите номер события для редактирования: ";
             cin >> index;
             cin.ignore();
             cout << "Введите новое название: ";
@@ -175,15 +177,15 @@ int main() {
         else if (choice == 6) {
             string dateTime;
             int index;
-            cout << "Введите дату (ГГГГ-ММ-ДД):";
+            cout << "Введите дату (ГГГГ-ММ-ДД *ЧЧ:ММ*): ";
             cin.ignore();
             getline(cin, dateTime);
-            cout << "Enter event index: ";
+            cal.viewEvents(dateTime);
+            cout << "Введите номер события для удаления: ";
             cin >> index;
             cal.deleteEvent(dateTime, index - 1);
         }
     } while (choice != 7);
-
+    cout << "Окак... " << endl;
     return 0;
-
-    }
+}
