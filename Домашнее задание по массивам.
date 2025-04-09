@@ -1,0 +1,219 @@
+//№1
+#include <iostream>
+#include <algorithm> // Для использования std::swap
+#include <vector>
+#include <algorithm>
+#include <map>
+#include <numeric>
+#include <iomanip>
+using namespace std;
+//
+//void calculateStats(vector<int>& nums) {
+//    int size = nums.size();
+//    if (size == 0) {
+//        cout << "Массив пуст!" << endl;
+//        return;
+//    }
+//
+//    vector<int> sorted_nums = nums;
+//    sort(sorted_nums.begin(), sorted_nums.end());
+//
+//    double sum = accumulate(sorted_nums.begin(), sorted_nums.end(), 0);
+//    double mean = sum / size;
+//
+//    double mid_range = (sorted_nums.front() + sorted_nums.back()) / 2.0;
+//
+//    double median;
+//    if (size % 2 == 0) {
+//        median = (sorted_nums[size / 2 - 1] + sorted_nums[size / 2]) / 2.0;
+//    }
+//    else {
+//        median = sorted_nums[size / 2];
+//    }
+//
+//    map<int, int> freq_map;
+//    for (int num : sorted_nums) {
+//        freq_map[num]++;
+//    }
+//    int mode = sorted_nums[0];
+//    int max_freq = 1;
+//    for (const auto& pair : freq_map) {
+//        if (pair.second > max_freq) {
+//            max_freq = pair.second;
+//            mode = pair.first;
+//        }
+//    }
+//
+//    cout << "Среднее арифметическое: " << fixed << setprecision(4) << mean << endl;
+//    cout << "Среднее (min/max): " << mid_range << endl;
+//    cout << "Медиана: " << median << endl;
+//    cout << "Мода: " << mode << " (повторяется " << max_freq << " раз)" << endl;
+//}
+//
+//int main() {
+//    setlocale(LC_ALL,"ru");
+//    vector<int> nums = { 1, -1, 5, 2, 4, 2, 1, 3, 2, 7, -6, 9 };
+//    calculateStats(nums);
+//    return 0;
+//}
+
+
+//№2
+//void bubbleSort(double arr[], int n, bool ascending) {
+//    bool swapped;
+//    for (int i = 0; i < n - 1; ++i) {
+//        swapped = false;
+//        for (int j = 0; j < n - i - 1; ++j) {
+//            if (ascending ? (arr[j] > arr[j + 1]) : (arr[j] < arr[j + 1])) {
+//                swap(arr[j], arr[j + 1]); 
+//                swapped = true;
+//            }
+//        }
+//        if (!swapped) break;
+//    }
+//}
+//
+//int main() {
+//    setlocale(LC_ALL, "ru");
+//    int n;
+//    cout << "Введите количество элементов: ";
+//    cin >> n;
+//
+//    double* arr = new double[n];
+//    cout << "Введите " << n << " вещественных чисел:\n";
+//    for (int i = 0; i < n; ++i) {
+//        cin >> arr[i];
+//    }
+//
+//    char direction;
+//    cout << "Выберите направление сортировки (< - по возрастанию, > - по убыванию): ";
+//    cin >> direction;
+//    bool ascending = (direction == '<');
+//
+//    bubbleSort(arr, n, ascending);
+//
+//    cout << "\nОтсортированный массив:\n";
+//    for (int i = 0; i < n; ++i) {
+//        cout << arr[i] << " ";
+//    }
+//
+//    if (ascending) {
+//        cout << "\nМинимальный элемент: " << arr[0]
+//            << "\nМаксимальный элемент: " << arr[n - 1] << endl;
+//    }
+//    else {
+//        cout << "\nМаксимальный элемент: " << arr[0]
+//            << "\nМинимальный элемент: " << arr[n - 1] << endl;
+//    }
+//
+//    delete[] arr; 
+//    return 0;
+//}
+
+
+//№3
+//void bubbleSort(double arr[], int n, bool ascending) {
+//    bool swapped;
+//    for (int i = 0; i < n - 1; ++i) {
+//        swapped = false;
+//        for (int j = 0; j < n - i - 1; ++j) {
+//            if (ascending ? arr[j] > arr[j + 1] : arr[j] < arr[j + 1]) {
+//                swap(arr[j], arr[j + 1]);
+//                swapped = true;
+//            }
+//        }
+//        if (!swapped) break;
+//    }
+//}
+//
+//int main() {
+//    setlocale(LC_ALL, "ru");
+//    int n;
+//    cout << "Введите количество элементов: ";
+//    cin >> n;
+//
+//    double* arr = new double[n];
+//    cout << "Введите " << n << " вещественных чисел:\n";
+//    for (int i = 0; i < n; ++i) {
+//        cin >> arr[i];
+//    }
+//
+//    char order;
+//    cout << "Выберите направление сортировки (< - по возрастанию, > - по убыванию): ";
+//    cin >> order;
+//    bool ascending = (order == '<');
+//
+//    bubbleSort(arr, n, ascending);
+//
+//    cout << "Отсортированный массив:\n";
+//    for (int i = 0; i < n; ++i) {
+//        cout << arr[i] << " ";
+//    }
+//    cout << "\n";
+//
+//    if (ascending) {
+//        cout << "Минимальный элемент: " << arr[0] << "\n";
+//        cout << "Максимальный элемент: " << arr[n - 1] << "\n";
+//    }
+//    else {
+//        cout << "Минимальный элемент: " << arr[n - 1] << "\n";
+//        cout << "Максимальный элемент: " << arr[0] << "\n";
+//    }
+//
+//    delete[] arr;
+//    return 0;
+//}
+
+//№4
+void printMatrix(const vector<vector<int>>& matrix) {
+    for (const auto& row : matrix) {
+        for (int val : row)
+            cout << val << "\t";
+        cout << endl;
+    }
+}
+
+int main() {
+    setlocale(LC_ALL, "ru");
+    vector<vector<int>> squareMatrix = {
+        {1, 2, 3},
+        {4, 5, 6},
+        {7, 8, 9}
+    };
+
+    int n = squareMatrix.size();
+    int mainDiagonalSum = 0;
+    int secondaryDiagonalSum = 0;
+
+    for (int i = 0; i < n; ++i) {
+        mainDiagonalSum += squareMatrix[i][i];         
+        secondaryDiagonalSum += squareMatrix[n - 1 - i][i];
+    }
+
+    cout << "Сумма элементов на главной диагонали: " << mainDiagonalSum << endl;
+    cout << "Сумма элементов на побочной диагонали: " << secondaryDiagonalSum << endl;
+
+    vector<vector<int>> rectMatrix = {
+        {1, 2, 3, 4},
+        {5, 6, 7, 8},
+        {9, 10, 11, 12}
+    };
+
+    int evenSum = 0;
+    int oddSum = 0;
+
+    for (int i = 0; i < rectMatrix.size(); ++i) {
+        for (int j = 0; j < rectMatrix[i].size(); ++j) {
+            if ((i + j) % 2 == 0)
+                evenSum += rectMatrix[i][j];
+            else
+                oddSum += rectMatrix[i][j];
+        }
+    }
+
+    cout << "Сумма четных ячеек: " << evenSum << endl;
+    cout << "Сумма нечетных ячеек: " << oddSum << endl;
+    cout << "Разница (четные - нечетные): " << (evenSum - oddSum) << endl;
+
+    return 0;
+}
