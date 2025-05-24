@@ -1,0 +1,88 @@
+public interface IPaymentProcessor
+{
+    bool ProcessPayment(decimal amount);
+    bool RefundPayment(decimal amount, string transactionId);
+}
+
+public interface IPaymentValidator
+{
+    bool ValidatePayment();
+}
+
+public class PayPalProcessor : IPaymentProcessor
+{
+    public bool ProcessPayment(decimal amount)
+    {
+        Console.WriteLine($"Processing PayPal payment for {amount}");
+        return true;
+    }
+
+    public bool RefundPayment(decimal amount, string transactionId)
+    {
+        Console.WriteLine($"Refunding PayPal payment {amount} for transaction {transactionId}");
+        return true;
+    }
+}
+
+public class CreditCardProcessor : IPaymentProcessor, IPaymentValidator
+{
+    public bool ProcessPayment(decimal amount)
+    {
+        Console.WriteLine($"Processing Credit Card payment for {amount}");
+        return true;
+    }
+
+    public bool RefundPayment(decimal amount, string transactionId)
+    {
+        Console.WriteLine($"Refunding Credit Card payment {amount} for transaction {transactionId}");
+        return true;
+    }
+
+    public bool ValidatePayment()
+    {
+        Console.WriteLine("Validating Credit Card payment");
+        return true;
+    }
+}
+
+public class CryptoCurrencyProcessor : IPaymentProcessor
+{
+    public bool ProcessPayment(decimal amount)
+    {
+        Console.WriteLine($"Processing Crypto Currency payment for {amount}");
+        return true;
+    }
+
+    public bool RefundPayment(decimal amount, string transactionId)
+    {
+        Console.WriteLine($"Refunding Crypto Currency payment {amount} for transaction {transactionId}");
+        return true;
+    }
+}
+public class PaymentService
+{
+    private readonly IPaymentProcessor _paymentProcessor;
+    private readonly IPaymentValidator _paymentValidator;
+
+    public PaymentService(IPaymentProcessor paymentProcessor, IPaymentValidator paymentValidator = null)
+    {
+        _paymentProcessor = paymentProcessor;
+        _paymentValidator = paymentValidator;
+    }
+
+    public bool MakePayment(decimal amount)
+    {
+        if (_paymentValidator != null && !_paymentValidator.ValidatePayment())
+        {
+            Console.WriteLine("Payment validation failed");
+            return false;
+        }
+
+        return _paymentProcessor.ProcessPayment(amount);
+    }
+
+    public bool RefundPayment(decimal amount, string transactionId)
+    {
+        return _paymentProcessor.RefundPayment(amount, transactionId);
+    }
+}
