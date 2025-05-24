@@ -1,0 +1,231 @@
+using System;
+using System.Collections.Generic;
+
+public abstract class Reservation
+{
+    public string ReservationID { get; set; }
+    public string CustomerName { get; set; }
+    public DateTime StartDate { get; set; }
+    public DateTime EndDate { get; set; }
+
+    public abstract decimal CalculatePrice();
+
+    public virtual void DisplayDetails()
+    {
+        Console.WriteLine($"Бронирование ID: {ReservationID}");
+        Console.WriteLine($"Клиент: {CustomerName}");
+        Console.WriteLine($"Дата начала: {StartDate.ToShortDateString()}");
+        Console.WriteLine($"Дата окончания: {EndDate.ToShortDateString()}");
+        Console.WriteLine($"Стоимость: {CalculatePrice():C}");
+    }
+}
+
+public class HotelReservation : Reservation
+{
+    public string RoomType { get; set; }
+    public string MealPlan { get; set; } 
+
+    public override decimal CalculatePrice()
+    {
+        decimal basePrice = 0;
+        int days = (EndDate - StartDate).Days;
+
+
+        switch (RoomType)
+        {
+            case "Standard": basePrice = 50; break;
+            case "Deluxe": basePrice = 100; break;
+            case "Suite": basePrice = 200; break;
+        }
+
+        switch (MealPlan)
+        {
+            case "Breakfast": basePrice += 20; break;
+            case "AllInclusive": basePrice += 50; break;
+        }
+
+        return basePrice * days;
+    }
+
+    public override void DisplayDetails()
+    {
+        base.DisplayDetails();
+        Console.WriteLine($"Тип комнаты: {RoomType}");
+        Console.WriteLine($"Тип питания: {MealPlan}");
+    }
+}
+
+public class FlightReservation : Reservation
+{
+    public string DepartureAirport { get; set; }
+    public string ArrivalAirport { get; set; }
+
+    public override decimal CalculatePrice()
+    {
+        decimal basePrice = 200;
+        decimal multiplier = 1.0m;
+
+        if (DepartureAirport.Length == 3 && ArrivalAirport.Length == 3 &&
+            DepartureAirport[0] != ArrivalAirport[0])
+        {
+            multiplier = 2.5m;
+        }
+
+        return basePrice * multiplier;
+    }
+
+    public override void DisplayDetails()
+    {
+        base.DisplayDetails();
+        Console.WriteLine($"Аэропорт вылета: {DepartureAirport}");
+        Console.WriteLine($"Аэропорт прилета: {ArrivalAirport}");
+    }
+}
+
+public class CarRentalReservation : Reservation
+{
+    public string CarType { get; set; } 
+    public bool InsuranceOption { get; set; }
+
+    public override decimal CalculatePrice()
+    {
+        decimal basePrice = 0;
+        int days = (EndDate - StartDate).Days;
+
+        switch (CarType)
+        {
+            case "Economy": basePrice = 30; break;
+            case "Compact": basePrice = 40; break;
+            case "SUV": basePrice = 70; break;
+            case "Luxury": basePrice = 120; break;
+        }
+
+        if (InsuranceOption)
+        {
+            basePrice += 15;
+        }
+
+        return basePrice * days;
+    }
+
+    public override void DisplayDetails()
+    {
+        base.DisplayDetails();
+        Console.WriteLine($"Тип автомобиля: {CarType}");
+        Console.WriteLine($"Страховка: {(InsuranceOption ? "Да" : "Нет")}");
+    }
+}
+public class BookingSystem
+{
+    private List<Reservation> reservations = new List<Reservation>();
+
+    public Reservation CreateReservation(string reservationType, string customerName,
+                                       DateTime startDate, DateTime endDate)
+    {
+        Reservation reservation = null;
+        string reservationId = Guid.NewGuid().ToString();
+
+        switch (reservationType.ToLower())
+        {
+            case "hotel":
+                reservation = new HotelReservation
+                {
+                    ReservationID = reservationId,
+                    CustomerName = customerName,
+                    StartDate = startDate,
+                    EndDate = endDate
+                };
+                break;
+
+            case "flight":
+                reservation = new FlightReservation
+                {
+                    ReservationID = reservationId,
+                    CustomerName = customerName,
+                    StartDate = startDate,
+                    EndDate = endDate
+                };
+                break;
+
+            case "car":
+                reservation = new CarRentalReservation
+                {
+                    ReservationID = reservationId,
+                    CustomerName = customerName,
+                    StartDate = startDate,
+                    EndDate = endDate
+                };
+                break;
+        }
+
+        if (reservation != null)
+        {
+            reservations.Add(reservation);
+        }
+
+        return reservation;
+    }
+
+    public bool CancelReservation(string reservationID)
+    {
+        var reservation = reservations.Find(r => r.ReservationID == reservationID);
+        if (reservation != null)
+        {
+            reservations.Remove(reservation);
+            return true;
+        }
+        return false;
+    }
+
+    public decimal GetTotalBookingValue()
+    {
+        decimal total = 0;
+        foreach (var reservation in reservations)
+        {
+            total += reservation.CalculatePrice();
+        }
+        return total;
+    }
+
+    public List<Reservation> GetAllReservations()
+    {
+        return new List<Reservation>(reservations);
+    }
+}
+class Program
+{
+    static void Main(string[] args)
+    {
+        var bookingSystem = new BookingSystem();
+
+        var hotelRes = bookingSystem.CreateReservation("hotel", "Иван Иванов",
+            new DateTime(2023, 6, 1), new DateTime(2023, 6, 10)) as HotelReservation;
+        hotelRes.RoomType = "Deluxe";
+        hotelRes.MealPlan = "Breakfast";
+
+        var flightRes = bookingSystem.CreateReservation("flight", "Иван Иванов",
+            new DateTime(2023, 6, 1), new DateTime(2023, 6, 1)) as FlightReservation;
+        flightRes.DepartureAirport = "SVO";
+        flightRes.ArrivalAirport = "JFK";
+
+        var carRes = bookingSystem.CreateReservation("car", "Иван Иванов",
+            new DateTime(2023, 6, 2), new DateTime(2023, 6, 9)) as CarRentalReservation;
+        carRes.CarType = "SUV";
+        carRes.InsuranceOption = true;
+
+        Console.WriteLine("Все бронирования:");
+        foreach (var res in bookingSystem.GetAllReservations())
+        {
+            res.DisplayDetails();
+            Console.WriteLine();
+        }
+
+        Console.WriteLine($"Общая стоимость всех бронирований: {bookingSystem.GetTotalBookingValue():C}");
+
+    
+        Console.WriteLine("\nОтменяем бронирование отеля...");
+        bookingSystem.CancelReservation(hotelRes.ReservationID);
+
+        Console.WriteLine($"Общая стоимость после отмены: {bookingSystem.GetTotalBookingValue():C}");
+    }
+}
