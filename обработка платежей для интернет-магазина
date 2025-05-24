@@ -1,25 +1,25 @@
 public interface IPaymentProcessor
 {
     bool ProcessPayment(decimal amount);
-    bool RefundPayment(decimal amount, string transactionId);
+    bool RefundPayment(string transactionId);
 }
 
 public interface IPaymentValidator
 {
-    bool ValidatePayment();
+    bool ValidatePayment(decimal amount);
 }
 
 public class PayPalProcessor : IPaymentProcessor
 {
     public bool ProcessPayment(decimal amount)
     {
-        Console.WriteLine($"Processing PayPal payment for {amount}");
-        return true;
+        Console.WriteLine($"Обработка PayPal платежа на сумму {amount}");
+        return true; 
     }
 
-    public bool RefundPayment(decimal amount, string transactionId)
+    public bool RefundPayment(string transactionId)
     {
-        Console.WriteLine($"Refunding PayPal payment {amount} for transaction {transactionId}");
+        Console.WriteLine($"Возврат PayPal платежа по транзакции {transactionId}");
         return true;
     }
 }
@@ -28,20 +28,20 @@ public class CreditCardProcessor : IPaymentProcessor, IPaymentValidator
 {
     public bool ProcessPayment(decimal amount)
     {
-        Console.WriteLine($"Processing Credit Card payment for {amount}");
+        Console.WriteLine($"Обработка платежа по кредитной карте на сумму {amount}");
         return true;
     }
 
-    public bool RefundPayment(decimal amount, string transactionId)
+    public bool RefundPayment(string transactionId)
     {
-        Console.WriteLine($"Refunding Credit Card payment {amount} for transaction {transactionId}");
+        Console.WriteLine($"Возврат платежа по кредитной карте по транзакции {transactionId}");
         return true;
     }
 
-    public bool ValidatePayment()
+    public bool ValidatePayment(decimal amount)
     {
-        Console.WriteLine("Validating Credit Card payment");
-        return true;
+        Console.WriteLine($"Валидация платежа по кредитной карте на сумму {amount}");
+        return amount > 0 && amount <= 10000; 
     }
 }
 
@@ -49,40 +49,53 @@ public class CryptoCurrencyProcessor : IPaymentProcessor
 {
     public bool ProcessPayment(decimal amount)
     {
-        Console.WriteLine($"Processing Crypto Currency payment for {amount}");
+        Console.WriteLine($"Обработка криптовалютного платежа на сумму {amount} BTC");
         return true;
     }
 
-    public bool RefundPayment(decimal amount, string transactionId)
+    public bool RefundPayment(string transactionId)
     {
-        Console.WriteLine($"Refunding Crypto Currency payment {amount} for transaction {transactionId}");
+        Console.WriteLine($"Возврат криптовалютного платежа по транзакции {transactionId}");
         return true;
     }
 }
 public class PaymentService
 {
-    private readonly IPaymentProcessor _paymentProcessor;
-    private readonly IPaymentValidator _paymentValidator;
-
-    public PaymentService(IPaymentProcessor paymentProcessor, IPaymentValidator paymentValidator = null)
+    public bool ProcessPayment(IPaymentProcessor processor, decimal amount)
     {
-        _paymentProcessor = paymentProcessor;
-        _paymentValidator = paymentValidator;
-    }
-
-    public bool MakePayment(decimal amount)
-    {
-        if (_paymentValidator != null && !_paymentValidator.ValidatePayment())
+        if (processor is IPaymentValidator validator)
         {
-            Console.WriteLine("Payment validation failed");
-            return false;
+            if (!validator.ValidatePayment(amount))
+            {
+                Console.WriteLine("Платеж не прошел валидацию");
+                return false;
+            }
         }
 
-        return _paymentProcessor.ProcessPayment(amount);
+        return processor.ProcessPayment(amount);
     }
 
-    public bool RefundPayment(decimal amount, string transactionId)
+    public bool RefundPayment(IPaymentProcessor processor, string transactionId)
     {
-        return _paymentProcessor.RefundPayment(amount, transactionId);
+        return processor.RefundPayment(transactionId);
+    }
+}
+class Program
+{
+    static void Main(string[] args)
+    {
+        var paymentService = new PaymentService();
+
+        var payPalProcessor = new PayPalProcessor();
+        paymentService.ProcessPayment(payPalProcessor, 100.50m);
+
+
+        var creditCardProcessor = new CreditCardProcessor();
+        paymentService.ProcessPayment(creditCardProcessor, 200.75m);
+
+        paymentService.ProcessPayment(creditCardProcessor, -50.00m);
+
+        var cryptoProcessor = new CryptoCurrencyProcessor();
+        paymentService.ProcessPayment(cryptoProcessor, 0.005m);
     }
 }
