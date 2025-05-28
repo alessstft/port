@@ -1,0 +1,87 @@
+using System;
+using System.Threading;
+
+public class ServerEventArgs : EventArgs
+{
+    public string ServerName { get; }
+    public string Message { get; }
+    public DateTime EventTime { get; }
+
+    public ServerEventArgs(string serverName, string message)
+    {
+        ServerName = serverName;
+        Message = message;
+        EventTime = DateTime.Now;
+    }
+}
+
+public class ServerMonitor
+{
+    public event EventHandler<ServerEventArgs> ServerDown;
+
+    private readonly string _serverName;
+    private readonly Random _random = new Random();
+
+    public ServerMonitor(string serverName)
+    {
+        _serverName = serverName;
+    }
+
+    public void CheckServerStatus()
+    {
+        while (true)
+        {
+            if (_random.Next(0, 100) < 20) 
+            {
+                string errorMessage = "Сервер не отвечает";
+                OnServerDown(new ServerEventArgs(_serverName, errorMessage));
+            }
+            
+            Thread.Sleep(2000);
+        }
+    }
+
+    protected virtual void OnServerDown(ServerEventArgs e)
+    {
+        ServerDown?.Invoke(this, e);
+    }
+}
+
+public class EmailNotifier
+{
+    public void SendEmailNotification(object sender, ServerEventArgs e)
+    {
+        Console.WriteLine($"[Email] {e.EventTime}: Сервер '{e.ServerName}' сообщает: {e.Message}");
+    }
+}
+
+public class SmsNotifier
+{
+    public void SendSmsNotification(object sender, ServerEventArgs e)
+    {
+        Console.WriteLine($"[SMS] {e.EventTime}: Внимание! Проблема с сервером '{e.ServerName}': {e.Message}");
+    }
+}
+
+class Program
+{
+    static void Main()
+    {
+        var monitor = new ServerMonitor("MainServer");
+        var emailNotifier = new EmailNotifier();
+        var smsNotifier = new SmsNotifier();
+
+        monitor.ServerDown += emailNotifier.SendEmailNotification;
+        monitor.ServerDown += smsNotifier.SendSmsNotification;
+
+        Console.WriteLine("Мониторинг сервера запущен. Нажмите любую клавишу для выхода...");
+        
+        var monitoringThread = new Thread(monitor.CheckServerStatus);
+        monitoringThread.Start();
+        
+        Console.ReadKey();
+        
+        monitor.ServerDown -= emailNotifier.SendEmailNotification;
+        monitor.ServerDown -= smsNotifier.SendSmsNotification;
+    }
+}
