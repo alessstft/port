@@ -1,0 +1,110 @@
+using System;
+
+public interface IShippingStrategy
+{
+    decimal CalculateShippingCost(decimal orderPrice, int distance);
+}
+
+public class FixedShippingStrategy : IShippingStrategy
+{
+    private readonly decimal _fixedCost;
+
+    public FixedShippingStrategy(decimal fixedCost)
+    {
+        _fixedCost = fixedCost;
+    }
+
+    public decimal CalculateShippingCost(decimal orderPrice, int distance)
+    {
+        return _fixedCost;
+    }
+}
+
+public class PercentageShippingStrategy : IShippingStrategy
+{
+    private readonly decimal _percentage;
+
+    public PercentageShippingStrategy(decimal percentage)
+    {
+        _percentage = percentage;
+    }
+
+    public decimal CalculateShippingCost(decimal orderPrice, int distance)
+    {
+        return orderPrice * _percentage / 100;
+    }
+}
+
+public class DistanceShippingStrategy : IShippingStrategy
+{
+    private readonly decimal _costPerKm;
+
+    public DistanceShippingStrategy(decimal costPerKm)
+    {
+        _costPerKm = costPerKm;
+    }
+
+    public decimal CalculateShippingCost(decimal orderPrice, int distance)
+    {
+        return distance * _costPerKm;
+    }
+}
+
+public class ShippingCalculator
+{
+    private IShippingStrategy _strategy;
+
+    public void SetStrategy(IShippingStrategy strategy)
+    {
+        _strategy = strategy;
+    }
+
+    public decimal CalculateCost(decimal orderPrice, int distance)
+    {
+        if (_strategy == null)
+        {
+            throw new InvalidOperationException("Стратегия доставки не установлена");
+        }
+        return _strategy.CalculateShippingCost(orderPrice, distance);
+    }
+}
+
+class Program
+{
+    static void Main()
+    {
+        var calculator = new ShippingCalculator();
+        
+        Console.WriteLine("Выберите способ расчета доставки:");
+        Console.WriteLine("1 - Фиксированная стоимость");
+        Console.WriteLine("2 - Процент от стоимости");
+        Console.WriteLine("3 - Зависимость от расстояния");
+        
+        int choice = int.Parse(Console.ReadLine());
+        
+        switch (choice)
+        {
+            case 1:
+                calculator.SetStrategy(new FixedShippingStrategy(500));
+                break;
+            case 2:
+                calculator.SetStrategy(new PercentageShippingStrategy(10));
+                break;
+            case 3:
+                calculator.SetStrategy(new DistanceShippingStrategy(50));
+                break;
+            default:
+                Console.WriteLine("Неверный выбор");
+                return;
+        }
+        
+        Console.Write("Введите стоимость заказа: ");
+        decimal orderPrice = decimal.Parse(Console.ReadLine());
+        
+        Console.Write("Введите расстояние (если применимо): ");
+        int distance = int.Parse(Console.ReadLine());
+        
+        decimal shippingCost = calculator.CalculateCost(orderPrice, distance);
+        Console.WriteLine($"Итоговая стоимость доставки: {shippingCost}");
+    }
+}
